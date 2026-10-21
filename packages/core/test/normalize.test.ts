@@ -19,7 +19,9 @@ describe('normalizePlanSheet', () => {
     expect(sheet.planName).toBe('Plan 2557');
     expect(sheet.specs).toEqual({ sqft: '2,557 – 2,584', bedrooms: null, baths: null });
     expect(sheet.elevations).toEqual(['Elevation B', 'Elevation D']);
-    expect(sheet.notes).toEqual([{ marker: '**', text: 'Option not available' }]);
+    expect(sheet.notes).toEqual([
+      { marker: '**', text: 'Option not available', page: null, kind: 'footnote', appliesTo: [], effect: 'info', target: null }
+    ]);
     expect(sheet.options).toHaveLength(2);
     expect(sheet.options[0]).toMatchObject({ floorNumber: 1, location: 'Den and Powder', caption: null, replaces: ['Den'], adds: ['Bedroom 5'], marker: '**' });
     expect(sheet.options[1]).toMatchObject({ floorNumber: null, replaces: [], adds: [], insetKey: null });
@@ -38,5 +40,21 @@ describe('normalizePlanSheet', () => {
     const options = Array.from({ length: 500 }, (_, i) => ({ location: 'x', name: `Option ${i}` }));
 
     expect(normalizePlanSheet({ options }).options).toHaveLength(200);
+  });
+
+  it('keeps what a note asks for only when it has something to act on', () => {
+    const sheet = normalizePlanSheet({
+      options: [{ name: 'Door', location: 'Den' }],
+      notes: [
+        { text: 'Not available on every lot', effect: 'not-available', appliesTo: ['Door at Den'], page: 3.4, kind: 'drawing' },
+        { text: 'Not available with Door', effect: 'excludes', appliesTo: ['Fireplace'] },
+        { text: 'Needs the den', effect: 'depends-on', appliesTo: ['Door'], target: 'Den' },
+        { text: 'Hide it', effect: 'hide', appliesTo: [] },
+        { text: 'Odd', effect: 'delete-everything', appliesTo: ['Door'] }
+      ]
+    });
+
+    expect(sheet.notes.map(note => note.effect)).toEqual(['not-available', 'info', 'depends-on', 'info', 'info']);
+    expect(sheet.notes[0]).toMatchObject({ page: 3, kind: 'drawing' });
   });
 });

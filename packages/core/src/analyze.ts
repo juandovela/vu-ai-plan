@@ -19,7 +19,7 @@ export function analyzeDeterministic(snapshot: PlanSnapshot): {
 
   const ruleOps = buildRuleSuggestions(snapshot.items, context);
   const sheet = snapshot.sheet
-    ? buildSheetSuggestions(snapshot.items, snapshot.floors, snapshot.sheet)
+    ? buildSheetSuggestions(snapshot.items, snapshot.floors, snapshot.sheet, snapshot.floorLabels)
     : { ops: [] as Operation[], findings: [] as Finding[] };
 
   /**

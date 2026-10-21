@@ -73,7 +73,8 @@ function splitName(name: string) {
 const isElevation = (item: IFLogicAssistItem) => /\belevation\b/i.test(displayName(item));
 
 const elevationLetter = (name: string) => {
-  const match = /\belevation\s+([a-z0-9]+)\b/i.exec(name);
+  // the sheet prints the letter in quotes: Elevation ‘B’
+  const match = /\belevation\s+['"‘’“”]?([a-z0-9]+)['"‘’“”]?(?![a-z0-9])/i.exec(name);
 
   return match ? match[1].toLowerCase() : null;
 };
@@ -89,10 +90,203 @@ interface IFMatch {
   parts: { prefix: string; head: string; location: string };
 }
 
+
+/**
+ * The options of the plan a note is talking about. The note says them the way
+ * the options table does ("Fireplace at Family"), the plan has its own words
+ * ("Optional Fireplace at Family"): all the words of the shorter one have to
+ * be in the longer one, or they have to be close.
+ */
+function optionsNamed(
+  text: string,
+  options: IFLogicAssistItem[],
+  resolved: Array<{ label: string; name: string; item: IFLogicAssistItem }>
+): IFLogicAssistItem[] {
+  const wanted = tokens(text);
+
+  if (wanted.length === 0) {
+    return [];
+  }
+
+  /**
+   * The note speaks the sheet's language, and the options table of the sheet
+   * was already matched with the plan, however differently the layer is named.
+   */
+  const viaSheet = resolved
+    .map(entry => ({ item: entry.item, score: jaccard(wanted, tokens(entry.label)) }))
+    .filter(entry => entry.score >= 0.8)
+    .sort((a, b) => b.score - a.score);
+
+  if (viaSheet.length > 0) {
+    return viaSheet.filter(entry => entry.score >= viaSheet[0].score - 0.05).map(entry => entry.item);
+  }
+
+  // just the name ("opt. fireplace"): enough when only one option of the table is called that
+  const byName = resolved.filter(entry => jaccard(wanted, tokens(entry.name)) >= 0.8);
+
+  if (byName.length === 1) {
+    return [byName[0].item];
+  }
+
+  const scored = options
+    .map(item => {
+      const have = tokens(displayName(item));
+      const score = jaccard(wanted, have);
+
+      return { item, score: isSubset(wanted, have) && wanted.length >= 2 ? Math.max(score, 0.75) : score };
+    })
+    .filter(entry => entry.score >= 0.6)
+    .sort((a, b) => b.score - a.score);
+
+  return scored.length === 0 ? [] : scored.filter(entry => entry.score >= scored[0].score - 0.05).map(entry => entry.item);
+}
+
+const quote = (note: { text: string; page: number | null }) =>
+  `${note.page ? `Page ${note.page}: ` : ''}"${note.text.length > 140 ? `${note.text.slice(0, 137)}…` : note.text}"`;
+
+/**
+ * What the notes of the sheet ask for. A note that says it plainly becomes a
+ * suggestion to apply; the rest is shown, so nobody has to read the sheet
+ * again to know what it says about the options.
+ */
+function noteSuggestions(
+  options: IFLogicAssistItem[],
+  sheet: IFPlanSheet,
+  resolved: Array<{ label: string; name: string; item: IFLogicAssistItem }>
+) {
+  const ops: LogicAssistOp[] = [];
+  const findings: IFSheetFinding[] = [];
+  const seen: string[] = [];
+  const add = (op: LogicAssistOp) => {
+    if (!includes(seen, op.id)) {
+      seen.push(op.id);
+      ops.push(op);
+    }
+  };
+
+  sheet.notes.forEach((note, index) => {
+    const effect = note.effect ?? 'info';
+    const applies = (note.appliesTo ?? []).map(name => {
+      const found = optionsNamed(name, options, resolved);
+      const wanted = tokens(name);
+      // "Door" could be the door at the den or the one at the primary bath: say so instead of "no option"
+      const several = found.length > 0 || wanted.length === 0
+        ? []
+        : options.filter(item => wanted.every(token => includes(tokens(displayName(item)), token)));
+
+      return { name, items: found, several };
+    });
+    const ambiguous = applies.filter(entry => entry.several.length > 1);
+    const unmatched = applies.filter(entry => entry.items.length === 0 && entry.several.length <= 1).map(entry => `"${entry.name}"`);
+    const subjects = applies.reduce((all, entry) => all.concat(entry.items), [] as IFLogicAssistItem[]);
+    const target = note.target ? optionsNamed(note.target, options, resolved) : [];
+
+    if (effect === 'info' || subjects.length === 0 || ((effect === 'excludes' || effect === 'depends-on') && target.length !== 1)) {
+      // nothing to apply: it is shown with what it is about, once per note
+      /**
+       * Plan labels that say nothing about an option ("low wall", "d/w", "shelf")
+       * are read but not shown: the ones worth a look name an option or say
+       * "opt." / "option".
+       */
+      const worth =
+        effect !== 'info' ||
+        (note.appliesTo ?? []).length > 0 ||
+        (note.kind === 'general' && /counselor|not available|verify|contact|see\b|only|requires?/i.test(note.text)) ||
+        (note.kind === 'drawing' && /\bopt\b|\bopt\.|optional|option/i.test(note.text));
+
+      if (worth) {
+        const about = subjects.length > 0 ? ` Applies to: ${subjects.map(item => `"${item.name}"`).join(', ')}.` : '';
+        const lost =
+          effect !== 'info' && subjects.length === 0
+            ? ' It asks for a change but no option of this plan matches what it names.'
+            : effect !== 'info'
+            ? ` It asks for a change that could not be matched (${note.target ? `"${note.target}"` : 'no other option named'}).`
+            : '';
+
+        findings.push({
+          id: `note:${index}`,
+          // an information note that names something the plan does not have (a room, an option that is already reported as missing) is not an alarm
+          severity: effect === 'info' ? 'info' : 'warning',
+          message: `${quote(note)}${about}${lost}${
+            unmatched.length > 0 ? ` No option of this plan matches ${unmatched.join(', ')}.` : ''
+          }${
+            ambiguous.length > 0
+              ? ` Could not tell which option it is about: ${ambiguous
+                  .map(entry => `"${entry.name}" could be ${entry.several.map(item => `"${item.name}"`).join(' or ')}`)
+                  .join('; ')}.`
+              : ''
+          }`
+        });
+      }
+
+      return;
+    }
+
+    const why = `Note on the sheet. ${quote(note)}`;
+
+    subjects.forEach(item => {
+      if (effect === 'not-available' && !includes(item.filter, 'not-available')) {
+        add({
+          id: `filter:${item.uid}:not-available`,
+          kind: 'filter',
+          listItemUid: item.uid,
+          filter: 'not-available',
+          reason: why,
+          confidence: 'medium',
+          source: 'pdf'
+        });
+      }
+
+      if (effect === 'hide' && !includes(item.filter, 'hide')) {
+        add({
+          id: `filter:${item.uid}:hide`,
+          kind: 'filter',
+          listItemUid: item.uid,
+          filter: 'hide',
+          reason: why,
+          confidence: 'low',
+          source: 'pdf'
+        });
+      }
+
+      if (effect === 'excludes' && target[0].uid !== item.uid && !sharesLogicGroup([item, target[0]])) {
+        add({
+          ...groupOp(options, [item.uid, target[0].uid], why, 'medium'),
+          source: 'pdf'
+        });
+      }
+
+      if (effect === 'depends-on' && target[0].uid !== item.uid && !includes(item.parent, target[0].uid)) {
+        add({
+          id: `nest:${item.uid}:${target[0].uid}`,
+          kind: 'nest',
+          childUid: item.uid,
+          parentUid: target[0].uid,
+          reason: why,
+          confidence: 'medium',
+          source: 'pdf'
+        });
+      }
+    });
+
+    if (unmatched.length > 0) {
+      findings.push({
+        id: `note:${index}:unmatched`,
+        severity: 'warning',
+        message: `${quote(note)} No option of this plan matches ${unmatched.join(', ')}.`
+      });
+    }
+  });
+
+  return { ops, findings };
+}
+
 export function buildSheetSuggestions(
   items: IFLogicAssistItem[],
   floors: Array<{ uid: string; floorNumber: number }>,
-  sheet: IFPlanSheet
+  sheet: IFPlanSheet,
+  /** Normalised room names each floor draws, to tell a room the option creates from one that is already there. */
+  floorLabels: { [floorUid: string]: string[] } = {}
 ): { ops: LogicAssistOp[]; findings: IFSheetFinding[] } {
   const ops: LogicAssistOp[] = [];
   const findings: IFSheetFinding[] = [];
@@ -211,10 +405,24 @@ export function buildSheetSuggestions(
 
     const shared =
       !!sheetOption.insetKey && (insetMembers[sheetOption.insetKey] || []).length > 1;
-    const expected = `${sheetOption.name} at ${sheetOption.location}`;
-    const current = `${match.parts.head} at ${match.parts.location}`;
+    /**
+     * The sheet's name can already carry its place ("Double Doors at Den"), and
+     * a table heading ("Floor Options") is not a place: in both cases adding
+     * the table's location would write something that is not on the sheet.
+     */
+    const sheetPlace = /\bat\b/i.test(sheetOption.name) || /^floor options?$/i.test(sheetOption.location.trim()) ? '' : sheetOption.location;
+    const place = sheetPlace || (/^floor options?$/i.test(sheetOption.location.trim()) ? match.parts.location : '');
+    const expected = place ? `${sheetOption.name} at ${place}` : sheetOption.name;
+    const current = match.parts.location ? `${match.parts.head} at ${match.parts.location}` : match.parts.head;
 
-    if (!shared && alnum(expected) !== alnum(current)) {
+    // same option, and the layer places it more precisely than the sheet ("Floor 1 Stairs" for "Stairs"): nothing to fix
+    const saysMore =
+      sheetPlace.length > 0 &&
+      alnum(sheetOption.name) === alnum(match.parts.head) &&
+      tokens(sheetPlace).every(token => includes(tokens(match.parts.location), token)) &&
+      tokens(match.parts.location).length > tokens(sheetPlace).length;
+
+    if (!shared && !saysMore && alnum(expected) !== alnum(current)) {
       ops.push({
         id: `rename:${match.item.uid}`,
         kind: 'rename',
@@ -272,6 +480,36 @@ export function buildSheetSuggestions(
      * Rooms the option creates: whatever is located there depends on it.
      */
     sheetOption.adds.forEach(room => {
+      const existing = includes(floorLabels[match.item.floorUid ?? ''] ?? [], normalizeKey(room));
+
+      /**
+       * A room the floor already draws (Bath 2 in "Enlarged Bedrooms 2 and 3
+       * with Bath 2") is not created by the option, it is redone by it: what is
+       * located there can not be on together with it.
+       */
+      if (existing) {
+        const located = options.filter(
+          item =>
+            item.uid !== match.item.uid &&
+            item.floorUid === match.item.floorUid &&
+            includes(locationsOf(displayName(item)), normalizeKey(room))
+        );
+
+        if (located.length > 0 && !sharesLogicGroup([match.item].concat(located))) {
+          ops.push({
+            ...groupOp(
+              items,
+              [match.item.uid].concat(located.map(item => item.uid)),
+              `The sheet says "${sheetOption.name}" redoes the ${room}, which the floor already has: options located there can not be on with it.`,
+              'medium'
+            ),
+            source: 'pdf'
+          });
+        }
+
+        return;
+      }
+
       options
         .filter(
           item =>
@@ -293,6 +531,25 @@ export function buildSheetSuggestions(
         });
     });
   });
+
+  const fromNotes = noteSuggestions(
+    options,
+    sheet,
+    sheet.options.reduce(
+      (all, sheetOption, index) =>
+        bySheet[index]
+          ? all.concat({ label: `${sheetOption.name} at ${sheetOption.location}`, name: sheetOption.name, item: bySheet[index].item })
+          : all,
+      [] as Array<{ label: string; name: string; item: IFLogicAssistItem }>
+    )
+  );
+
+  fromNotes.ops.forEach(op => {
+    if (!ops.some(existing => existing.id === op.id)) {
+      ops.push(op);
+    }
+  });
+  findings.push(...fromNotes.findings);
 
   options
     .filter(item => !includes(taken, item.uid))
