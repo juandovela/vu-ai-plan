@@ -17,7 +17,7 @@
 import { includes } from './util';
 
 import { groupOp } from './nameRules';
-import { displayName, locationsOf, normalizeKey } from './ruleHelpers';
+import { displayName, locationsOf, normalizeKey, sharesLogicGroup } from './ruleHelpers';
 import type {
   IFLogicAssistItem,
   IFPlanSheet,
@@ -252,7 +252,10 @@ export function buildSheetSuggestions(
           includes(locationsOf(displayName(item)), normalizeKey(room))
       );
 
-      if (located.length > 0) {
+      // already in one exclusive group together: proposing it again would make a second one
+      const together = [match.item].concat(located);
+
+      if (located.length > 0 && !sharesLogicGroup(together)) {
         ops.push({
           ...groupOp(
             items,

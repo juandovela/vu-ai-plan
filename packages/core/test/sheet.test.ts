@@ -133,3 +133,19 @@ describe('analyzeDeterministic', () => {
     expect(operations.every(op => op.source === 'rules')).toBe(true);
   });
 });
+
+describe('what the sheet already got applied is not proposed again', () => {
+  it('does not offer the exclusive group of a replaced room twice', () => {
+    const snapshot = woodberry();
+    const first = buildSheetSuggestions(snapshot.items, snapshot.floors, woodberrySheet()).ops;
+    const group = first.find(op => op.kind === 'logicGroup') as { listItemUids: string[] };
+
+    expect(group).toBeDefined();
+
+    // the person applied it: both options are now in group 7
+    const applied = snapshot.items.map(entry => (group.listItemUids.includes(entry.uid) ? { ...entry, logic: [7] } : entry));
+    const again = buildSheetSuggestions(applied, snapshot.floors, woodberrySheet()).ops;
+
+    expect(again.filter(op => op.kind === 'logicGroup')).toEqual([]);
+  });
+});
