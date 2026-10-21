@@ -59,6 +59,17 @@ export function createVerifier(options: { projectIds: string[]; getKey?: JWTVeri
         issuer: options.projectIds.map(id => `https://securetoken.google.com/${id}`)
       }));
     } catch (error) {
+      // the reason stays in the Worker logs, never in the answer
+      console.warn(
+        JSON.stringify({
+          auth: 'rejected',
+          error: error instanceof Error ? error.name : 'unknown',
+          code: (error as { code?: string }).code,
+          claim: (error as { claim?: string }).claim,
+          expectedProjects: options.projectIds
+        })
+      );
+
       throw classify(error);
     }
 
