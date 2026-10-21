@@ -9,7 +9,7 @@
   // no Firebase project is allowed until you add them. Local overrides go in
   // .dev.vars (see .dev.vars.example), which is not committed.
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "aivu-backend",
+  "name": "vu-ai-plan",
   "main": "src/worker.ts",
   "compatibility_date": "2026-10-01",
 
