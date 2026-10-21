@@ -1,0 +1,19 @@
+{
+  "name": "aivu-backend",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Backend that analyses a home plan and proposes its option logic (AI Logic Assist).",
+  "workspaces": [
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "npm run build -w @aivu/core",
+    "typecheck": "npm run typecheck -w @aivu/core && npm run typecheck -w @aivu/server",
+    "test": "npm run test -w @aivu/core && npm run test -w @aivu/server",
+    "contract": "npm run contract -w @aivu/core",
+    "dev": "npm run dev -w @aivu/server"
+  }
+}

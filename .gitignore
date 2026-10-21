@@ -1,0 +1,14 @@
+node_modules
+dist
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+.DS_Store
+coverage
+# real customer plans used only for local validation
+/private
+
+# local secrets and wrangler state
+.dev.vars
+.wrangler

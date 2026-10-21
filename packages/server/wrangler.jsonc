@@ -1,0 +1,31 @@
+{
+  // Cloudflare Worker of AI Logic Assist.
+  //
+  // Local:        npm run dev -w @aivu/server        (http://localhost:8787)
+  // Secret key:   wrangler secret put GEMINI_API_KEY (production)
+  //               GEMINI_API_KEY in .dev.vars        (local)
+  //
+  // What is here is the production default and is safe as it is: no origin and
+  // no Firebase project is allowed until you add them. Local overrides go in
+  // .dev.vars (see .dev.vars.example), which is not committed.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "aivu-backend",
+  "main": "src/worker.ts",
+  "compatibility_date": "2026-10-01",
+
+  // always bundle the source of core, never a stale dist
+  "alias": {
+    "@aivu/core": "../core/src/index.ts"
+  },
+
+  "vars": {
+    "ENVIRONMENT": "production",
+    "GEMINI_MODEL": "gemini-3.5-flash-lite",
+    // Firebase projects whose users may call this, comma separated
+    "FIREBASE_PROJECT_IDS": "",
+    // browser origins of the plan app, comma separated
+    "ALLOWED_ORIGINS": "",
+    // claim "role" of the token
+    "ALLOWED_ROLES": "admin,manager,production"
+  }
+}

@@ -1,0 +1,189 @@
+{
+  "planName": "Plan 2557",
+  "specs": {
+    "sqft": "2,557 – 2,584",
+    "bedrooms": "4 – 6",
+    "baths": "2.5 – 3"
+  },
+  "elevations": [
+    "Elevation B",
+    "Elevation D",
+    "Elevation E"
+  ],
+  "notes": [
+    {
+      "marker": "*",
+      "text": "Option not depicted graphically."
+    },
+    {
+      "marker": "**",
+      "text": "Option not available on every homesite. See your sales counselor."
+    }
+  ],
+  "options": [
+    {
+      "floorNumber": 1,
+      "location": "Dining",
+      "name": "Covered Patio",
+      "caption": "Covered Patio at Dining",
+      "insetKey": "f1-covered-patio",
+      "replaces": [],
+      "adds": [
+        "Covered Patio"
+      ],
+      "marker": null
+    },
+    {
+      "floorNumber": 1,
+      "location": "Kitchen",
+      "name": "Island",
+      "caption": "Kitchen Island",
+      "insetKey": "f1-kitchen-island",
+      "replaces": [],
+      "adds": [
+        "Island"
+      ],
+      "marker": null
+    },
+    {
+      "floorNumber": 1,
+      "location": "Kitchen and Dining",
+      "name": "Upper Cabinets",
+      "caption": "Upper and Lower Cabinets at Kitchen and Dining",
+      "insetKey": "f1-cabinets",
+      "replaces": [],
+      "adds": [],
+      "marker": null
+    },
+    {
+      "floorNumber": 1,
+      "location": "Kitchen and Dining",
+      "name": "Lower Cabinets",
+      "caption": "Upper and Lower Cabinets at Kitchen and Dining",
+      "insetKey": "f1-cabinets",
+      "replaces": [],
+      "adds": [],
+      "marker": null
+    },
+    {
+      "floorNumber": 1,
+      "location": "Den",
+      "name": "Door",
+      "caption": "Door at Den",
+      "insetKey": "f1-den-door",
+      "replaces": [],
+      "adds": [],
+      "marker": null
+    },
+    {
+      "floorNumber": 1,
+      "location": "Den and Powder",
+      "name": "Bedroom 5 with Bath 3",
+      "caption": "Bedroom 5 and Bath 3 at Den and Powder",
+      "insetKey": "f1-bed5-bath3",
+      "replaces": [
+        "Den",
+        "Powder"
+      ],
+      "adds": [
+        "Bedroom 5",
+        "Bath 3"
+      ],
+      "marker": null
+    },
+    {
+      "floorNumber": 1,
+      "location": "Bath 3",
+      "name": "Shower in lieu of Tub",
+      "caption": "Shower in lieu of Tub at Bath 3",
+      "insetKey": "f1-bath3-shower",
+      "replaces": [],
+      "adds": [],
+      "marker": null
+    },
+    {
+      "floorNumber": 2,
+      "location": "Loft",
+      "name": "Bedroom 6",
+      "caption": "Bedroom 6 at Loft",
+      "insetKey": "f2-bed6",
+      "replaces": [
+        "Loft"
+      ],
+      "adds": [
+        "Bedroom 6"
+      ],
+      "marker": null
+    },
+    {
+      "floorNumber": 2,
+      "location": "Primary Bath",
+      "name": "Separate Tub and Shower",
+      "caption": "Separate Tub and Shower at Primary Bath",
+      "insetKey": "f2-primary-bath-sep",
+      "replaces": [],
+      "adds": [],
+      "marker": null
+    },
+    {
+      "floorNumber": 2,
+      "location": "Primary Bath",
+      "name": "Shower in lieu of Tub",
+      "caption": "Shower in lieu of Tub at Primary Bath",
+      "insetKey": "f2-primary-bath-shower",
+      "replaces": [],
+      "adds": [],
+      "marker": null
+    },
+    {
+      "floorNumber": 2,
+      "location": "Primary Bath",
+      "name": "Door",
+      "caption": "Door at Primary Bath",
+      "insetKey": "f2-primary-bath-door",
+      "replaces": [],
+      "adds": [],
+      "marker": null
+    },
+    {
+      "floorNumber": 2,
+      "location": "Bath 2",
+      "name": "Shower in lieu of Tub",
+      "caption": "Shower in lieu of Tub at Bath 2",
+      "insetKey": "f2-bath2-shower",
+      "replaces": [],
+      "adds": [],
+      "marker": null
+    },
+    {
+      "floorNumber": 2,
+      "location": "Bath 2",
+      "name": "Vanity with Dual Sinks",
+      "caption": "Vanity with Dual Sinks at Bath 2",
+      "insetKey": "f2-bath2-vanity",
+      "replaces": [],
+      "adds": [],
+      "marker": null
+    },
+    {
+      "floorNumber": 2,
+      "location": "Laundry",
+      "name": "Upper Cabinets",
+      "caption": "Upper and Lower Cabinets at Laundry",
+      "insetKey": "f2-laundry-cabs",
+      "replaces": [],
+      "adds": [],
+      "marker": null
+    },
+    {
+      "floorNumber": 2,
+      "location": "Laundry",
+      "name": "Lower Cabinets",
+      "caption": "Upper and Lower Cabinets at Laundry",
+      "insetKey": "f2-laundry-cabs",
+      "replaces": [],
+      "adds": [],
+      "marker": null
+    }
+  ]
+}

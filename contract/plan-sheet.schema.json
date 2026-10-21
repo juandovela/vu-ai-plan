@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "planName": {
+      "default": null,
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "specs": {
+      "default": {
+        "sqft": null,
+        "bedrooms": null,
+        "baths": null
+      },
+      "type": "object",
+      "properties": {
+        "sqft": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "bedrooms": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "baths": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "elevations": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "notes": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "marker": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "marker",
+          "text"
+        ]
+      }
+    },
+    "options": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "floorNumber": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "location": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "caption": {
+            "default": null,
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "insetKey": {
+            "default": null,
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "replaces": {
+            "default": [],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "adds": {
+            "default": [],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "marker": {
+            "default": null,
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "floorNumber",
+          "location",
+          "name"
+        ]
+      }
+    }
+  },
+  "required": [
+    "options"
+  ]
+}

@@ -1,0 +1,358 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "contractVersion": {
+      "type": "number",
+      "const": 1
+    },
+    "snapshot": {
+      "type": "object",
+      "properties": {
+        "floors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "uid": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "floorNumber": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "uid",
+              "name",
+              "floorNumber"
+            ]
+          }
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "uid": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "option",
+                  "structure"
+                ]
+              },
+              "name": {
+                "type": "string"
+              },
+              "originalName": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "floor": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "floorUid": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "filter": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "logic": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                }
+              },
+              "parent": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "package": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "rect": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "x": {
+                        "type": "number"
+                      },
+                      "y": {
+                        "type": "number"
+                      },
+                      "w": {
+                        "type": "number"
+                      },
+                      "h": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "x",
+                      "y",
+                      "w",
+                      "h"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "labels": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "uid",
+              "kind",
+              "name",
+              "originalName",
+              "floor",
+              "floorUid",
+              "filter",
+              "logic",
+              "parent",
+              "package",
+              "rect",
+              "labels"
+            ]
+          }
+        },
+        "elevations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "uid": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "package": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "uid",
+              "name",
+              "package"
+            ]
+          }
+        },
+        "floorLabels": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "sheet": {
+          "default": null,
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "planName": {
+                  "default": null,
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "specs": {
+                  "default": {
+                    "sqft": null,
+                    "bedrooms": null,
+                    "baths": null
+                  },
+                  "type": "object",
+                  "properties": {
+                    "sqft": {
+                      "default": null,
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "bedrooms": {
+                      "default": null,
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "baths": {
+                      "default": null,
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  }
+                },
+                "elevations": {
+                  "default": [],
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "notes": {
+                  "default": [],
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "marker": {
+                        "type": "string"
+                      },
+                      "text": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "marker",
+                      "text"
+                    ]
+                  }
+                },
+                "options": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "floorNumber": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "location": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "caption": {
+                        "default": null,
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "insetKey": {
+                        "default": null,
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "replaces": {
+                        "default": [],
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "adds": {
+                        "default": [],
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "marker": {
+                        "default": null,
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "floorNumber",
+                      "location",
+                      "name"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "options"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "glossary": {
+          "default": {},
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "floors",
+        "items",
+        "elevations",
+        "floorLabels"
+      ]
+    },
+    "prompt": {
+      "default": "",
+      "type": "string",
+      "maxLength": 1000
+    }
+  },
+  "required": [
+    "contractVersion",
+    "snapshot"
+  ]
+}

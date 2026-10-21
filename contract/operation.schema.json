@@ -1,0 +1,368 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reason": {
+          "type": "string"
+        },
+        "confidence": {
+          "type": "string",
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ]
+        },
+        "source": {
+          "type": "string",
+          "enum": [
+            "rules",
+            "ai",
+            "pdf"
+          ]
+        },
+        "kind": {
+          "type": "string",
+          "const": "rename"
+        },
+        "listItemUid": {
+          "type": "string"
+        },
+        "from": {
+          "type": "string"
+        },
+        "to": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "id",
+        "reason",
+        "confidence",
+        "source",
+        "kind",
+        "listItemUid",
+        "from",
+        "to"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reason": {
+          "type": "string"
+        },
+        "confidence": {
+          "type": "string",
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ]
+        },
+        "source": {
+          "type": "string",
+          "enum": [
+            "rules",
+            "ai",
+            "pdf"
+          ]
+        },
+        "kind": {
+          "type": "string",
+          "const": "filter"
+        },
+        "listItemUid": {
+          "type": "string"
+        },
+        "filter": {
+          "type": "string",
+          "enum": [
+            "none",
+            "hide",
+            "studio",
+            "studio-only",
+            "elevation",
+            "default",
+            "unlisted",
+            "preselected",
+            "not-available"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "reason",
+        "confidence",
+        "source",
+        "kind",
+        "listItemUid",
+        "filter"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reason": {
+          "type": "string"
+        },
+        "confidence": {
+          "type": "string",
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ]
+        },
+        "source": {
+          "type": "string",
+          "enum": [
+            "rules",
+            "ai",
+            "pdf"
+          ]
+        },
+        "kind": {
+          "type": "string",
+          "const": "logicGroup"
+        },
+        "listItemUids": {
+          "minItems": 2,
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "reason",
+        "confidence",
+        "source",
+        "kind",
+        "listItemUids"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reason": {
+          "type": "string"
+        },
+        "confidence": {
+          "type": "string",
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ]
+        },
+        "source": {
+          "type": "string",
+          "enum": [
+            "rules",
+            "ai",
+            "pdf"
+          ]
+        },
+        "kind": {
+          "type": "string",
+          "const": "package"
+        },
+        "listItemUids": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "items": false,
+          "minItems": 2,
+          "maxItems": 2
+        }
+      },
+      "required": [
+        "id",
+        "reason",
+        "confidence",
+        "source",
+        "kind",
+        "listItemUids"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reason": {
+          "type": "string"
+        },
+        "confidence": {
+          "type": "string",
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ]
+        },
+        "source": {
+          "type": "string",
+          "enum": [
+            "rules",
+            "ai",
+            "pdf"
+          ]
+        },
+        "kind": {
+          "type": "string",
+          "const": "nest"
+        },
+        "childUid": {
+          "type": "string"
+        },
+        "parentUid": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "reason",
+        "confidence",
+        "source",
+        "kind",
+        "childUid",
+        "parentUid"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reason": {
+          "type": "string"
+        },
+        "confidence": {
+          "type": "string",
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ]
+        },
+        "source": {
+          "type": "string",
+          "enum": [
+            "rules",
+            "ai",
+            "pdf"
+          ]
+        },
+        "kind": {
+          "type": "string",
+          "const": "floor"
+        },
+        "listItemUid": {
+          "type": "string"
+        },
+        "floorUid": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "reason",
+        "confidence",
+        "source",
+        "kind",
+        "listItemUid",
+        "floorUid"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reason": {
+          "type": "string"
+        },
+        "confidence": {
+          "type": "string",
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ]
+        },
+        "source": {
+          "type": "string",
+          "enum": [
+            "rules",
+            "ai",
+            "pdf"
+          ]
+        },
+        "kind": {
+          "type": "string",
+          "const": "elevationPackage"
+        },
+        "elevationUid": {
+          "type": "string"
+        },
+        "listItemUids": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "reason",
+        "confidence",
+        "source",
+        "kind",
+        "elevationUid",
+        "listItemUids"
+      ],
+      "additionalProperties": false
+    }
+  ]
+}

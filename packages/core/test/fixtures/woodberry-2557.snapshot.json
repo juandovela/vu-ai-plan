@@ -1,0 +1,459 @@
+{
+  "floors": [
+    {
+      "uid": "floor-1",
+      "name": "Floor 1",
+      "floorNumber": 1
+    },
+    {
+      "uid": "floor-2",
+      "name": "Floor 2",
+      "floorNumber": 2
+    }
+  ],
+  "items": [
+    {
+      "uid": "item-01",
+      "kind": "option",
+      "name": "Optional Covered Patio at Great Room",
+      "originalName": null,
+      "floor": "Floor 1",
+      "floorUid": "floor-1",
+      "filter": [],
+      "logic": [],
+      "parent": [],
+      "package": [],
+      "rect": {
+        "x": 65.6536832551801,
+        "y": 0,
+        "w": 66.9076346210404,
+        "h": 55.8393356666411
+      },
+      "labels": [
+        "Covered Patio"
+      ]
+    },
+    {
+      "uid": "item-02",
+      "kind": "option",
+      "name": "Optional Island at Kitchen",
+      "originalName": null,
+      "floor": "Floor 1",
+      "floorUid": "floor-1",
+      "filter": [],
+      "logic": [],
+      "parent": [],
+      "package": [],
+      "rect": {
+        "x": 18.3679452680699,
+        "y": 80.3149799706698,
+        "w": 53.2367963411607,
+        "h": 29.0306220437506
+      },
+      "labels": [
+        "oven / range w/ micro-hood above",
+        "island",
+        "Kitchen"
+      ]
+    },
+    {
+      "uid": "item-03",
+      "kind": "option",
+      "name": "Optional Upper Cabinets at Kitchen",
+      "originalName": null,
+      "floor": "Floor 1",
+      "floorUid": "floor-1",
+      "filter": [],
+      "logic": [],
+      "parent": [],
+      "package": [],
+      "rect": {
+        "x": 70.5136804721706,
+        "y": 129.65123052314,
+        "w": 44.0596758721294,
+        "h": 17.01
+      },
+      "labels": [
+        "upper cabs.",
+        "lower cabs."
+      ]
+    },
+    {
+      "uid": "item-04",
+      "kind": "option",
+      "name": "Optional Lower Cabinets at Kitchen",
+      "originalName": null,
+      "floor": "Floor 1",
+      "floorUid": "floor-1",
+      "filter": [],
+      "logic": [],
+      "parent": [],
+      "package": [],
+      "rect": {
+        "x": 70.5133903106498,
+        "y": 129.65123052314,
+        "w": 44.81092634579,
+        "h": 17.0134575108204
+      },
+      "labels": [
+        "lower cabs."
+      ]
+    },
+    {
+      "uid": "item-05",
+      "kind": "option",
+      "name": "Optional Door at Den",
+      "originalName": null,
+      "floor": "Floor 1",
+      "floorUid": "floor-1",
+      "filter": [],
+      "logic": [],
+      "parent": [],
+      "package": [],
+      "rect": {
+        "x": 142.613904509891,
+        "y": 221.610984947,
+        "w": 84.4694492716399,
+        "h": 22.0441734550914
+      },
+      "labels": [
+        "door"
+      ]
+    },
+    {
+      "uid": "item-06",
+      "kind": "option",
+      "name": "Optional Bedroom 5 with Bath 3 at Den and Powder",
+      "originalName": null,
+      "floor": "Floor 1",
+      "floorUid": "floor-1",
+      "filter": [],
+      "logic": [],
+      "parent": [],
+      "package": [],
+      "rect": {
+        "x": 145.961977494319,
+        "y": 188.25092568642,
+        "w": 83.5934456542309,
+        "h": 93.4675493821596
+      },
+      "labels": [
+        "Bath 3",
+        "Bedroom 5"
+      ]
+    },
+    {
+      "uid": "item-07",
+      "kind": "option",
+      "name": "Optional Shower in lieu Tub at Bath 3",
+      "originalName": null,
+      "floor": "Floor 1",
+      "floorUid": "floor-1",
+      "filter": [],
+      "logic": [],
+      "parent": [],
+      "package": [],
+      "rect": {
+        "x": 209.29107927397,
+        "y": 190.92143314673,
+        "w": 15.9386977907707,
+        "h": 27.9978734538008
+      },
+      "labels": []
+    },
+    {
+      "uid": "item-08",
+      "kind": "option",
+      "name": "Optional Elevation D at Floor 1",
+      "originalName": null,
+      "floor": "Floor 1",
+      "floorUid": "floor-1",
+      "filter": [],
+      "logic": [],
+      "parent": [],
+      "package": [],
+      "rect": {
+        "x": 110.82395229764,
+        "y": 261.09795424861,
+        "w": 117.46046362613,
+        "h": 41.3221094565606
+      },
+      "labels": []
+    },
+    {
+      "uid": "item-09",
+      "kind": "option",
+      "name": "Optional Elevation E at Floor 1",
+      "originalName": null,
+      "floor": "Floor 1",
+      "floorUid": "floor-1",
+      "filter": [],
+      "logic": [],
+      "parent": [],
+      "package": [],
+      "rect": {
+        "x": 111.83715565992,
+        "y": 261.06915598302,
+        "w": 116.42253825727,
+        "h": 41.2443619873602
+      },
+      "labels": []
+    },
+    {
+      "uid": "item-10",
+      "kind": "option",
+      "name": "Optional Bedroom 6 at Loft",
+      "originalName": null,
+      "floor": "Floor 2",
+      "floorUid": "floor-2",
+      "filter": [],
+      "logic": [],
+      "parent": [],
+      "package": [],
+      "rect": {
+        "x": 138.18835493762,
+        "y": 52.8286146489354,
+        "w": 93.3183090703606,
+        "h": 95.5491525872303
+      },
+      "labels": [
+        "Storage",
+        "Bedroom 6"
+      ]
+    },
+    {
+      "uid": "item-11",
+      "kind": "option",
+      "name": "Optional Separate Tub and Shower with Low Wall at Primary Bath",
+      "originalName": null,
+      "floor": "Floor 2",
+      "floorUid": "floor-2",
+      "filter": [],
+      "logic": [],
+      "parent": [],
+      "package": [],
+      "rect": {
+        "x": 81.1232458183104,
+        "y": 53.5223673658902,
+        "w": 56.9835388880801,
+        "h": 33.7277724958794
+      },
+      "labels": []
+    },
+    {
+      "uid": "item-12",
+      "kind": "option",
+      "name": "Optional Shower in lieu Tub at Primary Bath",
+      "originalName": null,
+      "floor": "Floor 2",
+      "floorUid": "floor-2",
+      "filter": [],
+      "logic": [],
+      "parent": [],
+      "package": [],
+      "rect": {
+        "x": 82.7540991945598,
+        "y": 57.2494389179101,
+        "w": 27.8448073537002,
+        "h": 24.6482448015204
+      },
+      "labels": []
+    },
+    {
+      "uid": "item-13",
+      "kind": "option",
+      "name": "Optional Door at Primary Bath",
+      "originalName": null,
+      "floor": "Floor 2",
+      "floorUid": "floor-2",
+      "filter": [],
+      "logic": [],
+      "parent": [],
+      "package": [],
+      "rect": {
+        "x": 78.6288551887001,
+        "y": 59.1182859555202,
+        "w": 15.5939554494707,
+        "h": 48.0948515312703
+      },
+      "labels": [
+        "door"
+      ]
+    },
+    {
+      "uid": "item-14",
+      "kind": "option",
+      "name": "Optional Shower in lieu Tub at Bath 2",
+      "originalName": null,
+      "floor": "Floor 2",
+      "floorUid": "floor-2",
+      "filter": [],
+      "logic": [],
+      "parent": [],
+      "package": [],
+      "rect": {
+        "x": 82.87870279053,
+        "y": 108.6192637429,
+        "w": 27.7897221931307,
+        "h": 15.9672318328303
+      },
+      "labels": []
+    },
+    {
+      "uid": "item-15",
+      "kind": "option",
+      "name": "Optional Vanity with Dual Sinks at Bath 2",
+      "originalName": null,
+      "floor": "Floor 2",
+      "floorUid": "floor-2",
+      "filter": [],
+      "logic": [],
+      "parent": [],
+      "package": [],
+      "rect": {
+        "x": 84.7084608732503,
+        "y": 138.206755648851,
+        "w": 26.12381269254,
+        "h": 29.5344495216395
+      },
+      "labels": []
+    },
+    {
+      "uid": "item-16",
+      "kind": "option",
+      "name": "Optional Upper Cabinets at Laundry",
+      "originalName": null,
+      "floor": "Floor 2",
+      "floorUid": "floor-2",
+      "filter": [],
+      "logic": [],
+      "parent": [],
+      "package": [],
+      "rect": {
+        "x": 115.64699182293,
+        "y": 128.61611135429,
+        "w": 33.0627950373209,
+        "h": 39.4070280595906
+      },
+      "labels": [
+        "upper cabs."
+      ]
+    },
+    {
+      "uid": "item-17",
+      "kind": "option",
+      "name": "Optional Lower Cabinets at Laundry",
+      "originalName": null,
+      "floor": "Floor 2",
+      "floorUid": "floor-2",
+      "filter": [],
+      "logic": [],
+      "parent": [],
+      "package": [],
+      "rect": {
+        "x": 113.07176009552,
+        "y": 159.65207822398,
+        "w": 14.3107854808804,
+        "h": 12.9782988779407
+      },
+      "labels": [
+        "lower cabs."
+      ]
+    },
+    {
+      "uid": "item-18",
+      "kind": "option",
+      "name": "Optional Elevation D at Floor 2",
+      "originalName": null,
+      "floor": "Floor 2",
+      "floorUid": "floor-2",
+      "filter": [],
+      "logic": [],
+      "parent": [],
+      "package": [],
+      "rect": {
+        "x": 0,
+        "y": 198.435699038871,
+        "w": 232.980190028849,
+        "h": 92.9675519953189
+      },
+      "labels": []
+    },
+    {
+      "uid": "item-19",
+      "kind": "option",
+      "name": "Optional Elevation E at Floor 2",
+      "originalName": null,
+      "floor": "Floor 2",
+      "floorUid": "floor-2",
+      "filter": [],
+      "logic": [],
+      "parent": [],
+      "package": [],
+      "rect": {
+        "x": 0,
+        "y": 198.435699038871,
+        "w": 232.98019002885,
+        "h": 92.9675519953198
+      },
+      "labels": []
+    }
+  ],
+  "elevations": [
+    {
+      "uid": "elevation-b",
+      "name": "Elevation B",
+      "package": []
+    },
+    {
+      "uid": "elevation-d",
+      "name": "Elevation D",
+      "package": []
+    },
+    {
+      "uid": "elevation-e",
+      "name": "Elevation E",
+      "package": []
+    }
+  ],
+  "floorLabels": {
+    "floor-1": [
+      "dw",
+      "ovenrangewmicrohoodabove",
+      "dining",
+      "living",
+      "kitchen",
+      "refspace",
+      "pantry",
+      "wh",
+      "coats",
+      "up",
+      "lowwall",
+      "garage",
+      "powder",
+      "entry",
+      "den",
+      "porch"
+    ],
+    "floor-2": [
+      "storage",
+      "linen",
+      "primarybath",
+      "primarybedroom",
+      "loft",
+      "bath2",
+      "lau",
+      "lowwall",
+      "kneespace",
+      "dn",
+      "shelf",
+      "wic",
+      "linen",
+      "bedroom3",
+      "bedroom2",
+      "bedroom4"
+    ]
+  },
+  "sheet": null,
+  "glossary": {}
+}
