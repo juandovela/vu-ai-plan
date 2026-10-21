@@ -104,6 +104,25 @@ export function buildRuleContext(assets: any[], layout: BasegroupFloor[]): IFRul
       floorLabels[asset.uid] = mergeLabels(asset.labels).map(normalizeKey);
     }
 
+    /**
+     * An elevation group ("Elevation B") holds its schemes ("Scheme A"…). The
+     * package is edited on each scheme, so those are what gets linked, named
+     * after the group: it is the group that says which elevation they are.
+     */
+    if (asset.assetType === 'elevation' && Array.isArray(asset.children) && asset.children.length > 0) {
+      asset.children.forEach((scheme: any) => {
+        if (scheme.assetType === 'elevation') {
+          elevations.push({
+            uid: scheme.uid,
+            name: `${asset.name} · ${scheme.name}`,
+            package: scheme.package ?? []
+          });
+        }
+      });
+
+      return;
+    }
+
     [asset].concat(asset.children ?? []).forEach((candidate: any) => {
       if (candidate.assetType === 'elevation') {
         elevations.push({
