@@ -23,8 +23,8 @@
     "GEMINI_MODEL": "gemini-3.5-flash-lite",
     // Firebase projects whose users may call this, comma separated
     "FIREBASE_PROJECT_IDS": "stage-vu,kbhome-vu",
-    // browser origins of the plan app, comma separated
-    "ALLOWED_ORIGINS": "http://localhost:8080",
+    // browser origins of the plan app, comma separated. "*" = any page (quick tests only)
+    "ALLOWED_ORIGINS": "*",
     // claim "role" of the token
     "ALLOWED_ROLES": "admin,manager,production"
   }

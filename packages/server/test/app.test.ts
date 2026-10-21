@@ -73,6 +73,15 @@ describe('cors', () => {
 
     expect(response.headers.get('Access-Control-Allow-Origin')).toBeNull();
   });
+
+  it('answers any origin when "*" is listed, and still needs the token', async () => {
+    const { app } = makeApp({ ALLOWED_ORIGINS: '*' });
+    const response = await app.request('/health', { headers: { Origin: 'https://anywhere.example' } });
+    const call = await post(app, '/v1/analyze', request(), { Origin: 'https://anywhere.example' });
+
+    expect(response.headers.get('Access-Control-Allow-Origin')).toBe('https://anywhere.example');
+    expect(call.status).toBe(401);
+  });
 });
 
 describe('who can call', () => {

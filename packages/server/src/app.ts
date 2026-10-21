@@ -49,7 +49,9 @@ export function createApp(deps: Deps) {
   app.use(
     '*',
     cors({
-      origin: origin => (config.origins.indexOf(origin) !== -1 ? origin : ''),
+      // "*" lets any page call it (quick tests). The token travels in a header, not a cookie,
+      // so a page that is not allowed still needs a valid Firebase token to get anything.
+      origin: origin => (config.origins.indexOf('*') !== -1 || config.origins.indexOf(origin) !== -1 ? origin : ''),
       allowMethods: ['GET', 'POST', 'OPTIONS'],
       allowHeaders: ['Authorization', 'Content-Type'],
       maxAge: 600
