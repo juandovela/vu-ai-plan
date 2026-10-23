@@ -232,14 +232,61 @@
                 "type": "object",
                 "properties": {
                   "marker": {
+                    "default": "",
                     "type": "string"
                   },
                   "text": {
                     "type": "string"
+                  },
+                  "page": {
+                    "default": null,
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": -9007199254740991,
+                        "maximum": 9007199254740991
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "kind": {
+                    "default": "footnote",
+                    "type": "string",
+                    "enum": [
+                      "footnote",
+                      "drawing",
+                      "general"
+                    ]
+                  },
+                  "appliesTo": {
+                    "default": [],
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "effect": {
+                    "default": "info",
+                    "type": "string",
+                    "enum": [
+                      "not-available",
+                      "hide",
+                      "excludes",
+                      "depends-on",
+                      "info"
+                    ]
+                  },
+                  "target": {
+                    "default": null,
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   }
                 },
                 "required": [
-                  "marker",
                   "text"
                 ]
               }

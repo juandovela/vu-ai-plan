@@ -174,6 +174,29 @@ export const sheetOptionSchema = z.object({
   marker: z.string().nullable().default(null)
 });
 
+/**
+ * What a note of the sheet asks for, when it says so explicitly. Anything else
+ * is "info": it is shown to the person so the sheet does not have to be read
+ * again, and nothing is changed.
+ */
+export const NOTE_EFFECTS = ['not-available', 'hide', 'excludes', 'depends-on', 'info'] as const;
+
+export const sheetNoteSchema = z.object({
+  /** "*" or "**" for footnotes, empty otherwise. */
+  marker: z.string().default(''),
+  /** As printed. */
+  text: z.string(),
+  /** Page of the PDF, 1 = first. */
+  page: z.number().int().nullable().default(null),
+  /** footnote: with a marker; drawing: a label on a plan; general: any other text. */
+  kind: z.enum(['footnote', 'drawing', 'general']).default('footnote'),
+  /** Options (as the options table writes them) or rooms the note is about. */
+  appliesTo: z.array(z.string()).default([]),
+  effect: z.enum(NOTE_EFFECTS).default('info'),
+  /** The other option, for "excludes" and "depends-on". */
+  target: z.string().nullable().default(null)
+});
+
 export const planSheetSchema = z.object({
   planName: z.string().nullable().default(null),
   specs: z
@@ -186,7 +209,7 @@ export const planSheetSchema = z.object({
   /** Captions of the front renderings, ex. "Elevation B". */
   elevations: z.array(z.string()).default([]),
   /** Footnotes, ex. "**" = "Option not available on every homesite". */
-  notes: z.array(z.object({ marker: z.string(), text: z.string() })).default([]),
+  notes: z.array(sheetNoteSchema).default([]),
   options: z.array(sheetOptionSchema)
 });
 
@@ -274,6 +297,8 @@ export type PlanElevation = z.infer<typeof elevationSchema>;
 export type PlanRect = z.infer<typeof rectSchema>;
 export type PlanSheet = z.infer<typeof planSheetSchema>;
 export type SheetOption = z.infer<typeof sheetOptionSchema>;
+export type SheetNote = z.infer<typeof sheetNoteSchema>;
+export type NoteEffect = (typeof NOTE_EFFECTS)[number];
 export type PlanSnapshot = z.infer<typeof snapshotSchema>;
 export type Finding = z.infer<typeof findingSchema>;
 export type TraceStep = z.infer<typeof traceStepSchema>;

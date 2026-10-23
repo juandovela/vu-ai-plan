@@ -149,3 +149,155 @@ describe('what the sheet already got applied is not proposed again', () => {
     expect(again.filter(op => op.kind === 'logicGroup')).toEqual([]);
   });
 });
+
+describe('the notes of the sheet', () => {
+  const snapshot = woodberry();
+  const withNotes = (notes: Array<Record<string, unknown>>) => {
+    const sheet = woodberrySheet();
+
+    sheet.notes = notes.map(note => ({
+      marker: '',
+      page: 3,
+      kind: 'drawing' as const,
+      appliesTo: [],
+      effect: 'info' as const,
+      target: null,
+      text: 'x',
+      ...note
+    })) as typeof sheet.notes;
+
+    return buildSheetSuggestions(snapshot.items, snapshot.floors, sheet);
+  };
+  const filters = (ops: Operation[]) => ops.filter(op => op.kind === 'filter').map(op => (op as { listItemUid: string; filter: string }));
+
+  it('turns "not available" into the filter, for the option it names', () => {
+    const { ops } = withNotes([{ text: 'Not available on every lot', effect: 'not-available', appliesTo: ['Door at Den'] }]);
+    const found = filters(ops).filter(op => op.filter === 'not-available');
+
+    expect(found.map(op => op.listItemUid)).toContain(uidOf(snapshot, 'Optional Door at Den'));
+    expect(ops.find(op => op.kind === 'filter' && op.reason.includes('Page 3'))).toMatchObject({ source: 'pdf', confidence: 'medium' });
+  });
+
+  it('proposes an exclusive group for "excludes" and a nest for "depends-on"', () => {
+    const { ops } = withNotes([
+      { text: 'Not available with Door at Den', effect: 'excludes', appliesTo: ['Covered Patio at Dining'], target: 'Door at Den' },
+      {
+        text: 'Needs Bedroom 5',
+        effect: 'depends-on',
+        appliesTo: ['Island at Kitchen'],
+        target: 'Bedroom 5 with Bath 3 at Den and Powder'
+      }
+    ]);
+    const group = ops.filter(op => op.kind === 'logicGroup').find(op => op.reason.startsWith('Note on the sheet'));
+    const nest = ops.find(op => op.kind === 'nest' && op.reason.startsWith('Note on the sheet'));
+
+    expect(group).toBeDefined();
+    expect(nest).toMatchObject({ parentUid: uidOf(snapshot, 'Optional Bedroom 5 with Bath 3 at Den and Powder') });
+  });
+
+  it('shows a note it can not act on, with what it is about, instead of losing it', () => {
+    const { ops, findings } = withNotes([
+      { text: 'opt. fireplace', effect: 'info', appliesTo: ['Fireplace at Family'] },
+      { text: 'transom window at 9 plate option', effect: 'info', appliesTo: ['Transom Window'] },
+      { text: 'Not available on every lot', effect: 'not-available', appliesTo: ['Hovercraft Dock'] }
+    ]);
+    const notes = findings.filter(finding => finding.id.startsWith('note:'));
+
+    expect(notes.map(note => note.message).join('\n')).toContain('"transom window at 9 plate option"');
+    expect(notes.some(note => note.severity === 'warning' && note.message.includes('Hovercraft Dock'))).toBe(true);
+    expect(filters(ops).some(op => op.filter === 'not-available' && op.listItemUid === undefined)).toBe(false);
+  });
+
+  it('does not propose twice what the marker already did', () => {
+    const { ops } = withNotes([{ text: 'x', effect: 'not-available', appliesTo: ['Door at Den'] }, { text: 'y', effect: 'not-available', appliesTo: ['Door at Den'] }]);
+    const ids = ops.map(op => op.id);
+
+    expect(ids.length).toBe(new Set(ids).size);
+  });
+});
+
+describe('what a real sheet taught (Willow Landing)', () => {
+  const floors = [{ uid: 'floor-2', floorNumber: 2 }];
+  const base = { floorUid: 'floor-2', floor: 'Floor 2' };
+  const sheetOf = (options: Array<Record<string, unknown>>, extra: Record<string, unknown> = {}) =>
+    ({ planName: null, specs: { sqft: null, bedrooms: null, baths: null }, elevations: [], notes: [], options: options.map(o => ({ floorNumber: 2, caption: null, insetKey: null, replaces: [], adds: [], marker: null, ...o })), ...extra }) as unknown as PlanSheet;
+
+  it('reads elevation captions printed with quotes', () => {
+    const items = [item({ uid: 'e', name: 'Optional Elevation B at Floor 2', ...base })];
+    const { findings } = buildSheetSuggestions(items, floors, sheetOf([{ name: 'Door', location: 'Den' }], { elevations: ["Elevation 'A'", "Elevation 'B'"] }));
+
+    expect(findings.some(f => f.id.startsWith('elevation:'))).toBe(false);
+  });
+
+  it('does not take a table heading for a place, nor add a place the name already has', () => {
+    const items = [
+      item({ uid: 'a', name: 'Optional Enlarged Bedrooms 2 and 3 with Bath 5 at Floor 2', ...base }),
+      item({ uid: 'b', name: 'Optional Double Doors at Den', ...base })
+    ];
+    const { ops } = buildSheetSuggestions(
+      items,
+      floors,
+      sheetOf([
+        { name: 'Enlarged Bedrooms 2 and 3 with Bath 2', location: 'Floor Options' },
+        { name: 'Double Doors at Den', location: 'Living' }
+      ])
+    );
+    const renames = ops.filter(op => op.kind === 'rename').map(op => (op as { to: string }).to);
+
+    expect(renames).toEqual(['Optional Enlarged Bedrooms 2 and 3 with Bath 2 at Floor 2']);
+  });
+
+  it('leaves a layer that places the option more precisely than the sheet', () => {
+    const items = [item({ uid: 'r', name: 'Optional Open Rail at Floor 1 Stairs', ...base })];
+    const { ops } = buildSheetSuggestions(items, floors, sheetOf([{ name: 'Open Rail', location: 'Stairs' }]));
+
+    expect(ops.filter(op => op.kind === 'rename')).toEqual([]);
+  });
+
+  it('excludes, not nests, what is located in a room the floor already has', () => {
+    const items = [
+      item({ uid: 'big', name: 'Optional Enlarged Bedrooms with Bath 2 at Floor 2', ...base }),
+      item({ uid: 'sinks', name: 'Optional Dual Sinks at Bath 2', ...base })
+    ];
+    const sheet = sheetOf([{ name: 'Enlarged Bedrooms with Bath 2', location: 'Floor 2', adds: ['Bath 2'] }, { name: 'Dual Sinks', location: 'Bath 2' }]);
+    const exists = buildSheetSuggestions(items, floors, sheet, { 'floor-2': ['bath2'] }).ops;
+    const created = buildSheetSuggestions(items, floors, sheet, { 'floor-2': [] }).ops;
+
+    expect(exists.some(op => op.kind === 'logicGroup')).toBe(true);
+    expect(exists.some(op => op.kind === 'nest')).toBe(false);
+    expect(created.some(op => op.kind === 'nest')).toBe(true);
+  });
+
+  it('finds the option an annotation names by the sheet\'s own name', () => {
+    const items = [item({ uid: 'f', name: 'Optional Fireplace at Family', ...base })];
+    const { findings } = buildSheetSuggestions(
+      items,
+      floors,
+      sheetOf([{ name: 'Fireplace', location: 'Great Room' }], {
+        notes: [{ marker: '', text: 'opt. fireplace', page: 3, kind: 'drawing', appliesTo: ['Fireplace'], effect: 'info', target: null }]
+      })
+    );
+
+    expect(findings.find(f => f.id === 'note:0')?.message).toContain('Optional Fireplace at Family');
+  });
+
+  it('does not show plan labels that say nothing about an option, and says when a name is ambiguous', () => {
+    const items = [
+      item({ uid: 'd1', name: 'Optional Door at Den', ...base, floor: 'Floor 1', floorUid: 'floor-1' }),
+      item({ uid: 'd2', name: 'Optional Door at Primary Bath', ...base })
+    ];
+    const note = (text: string, appliesTo: string[] = []) => ({ marker: '', page: 2, kind: 'drawing', appliesTo, effect: 'info', target: null, text });
+    const { findings } = buildSheetSuggestions(
+      items,
+      [...floors, { uid: 'floor-1', floorNumber: 1 }],
+      sheetOf([{ name: 'Door', location: 'Den', floorNumber: 1 }, { name: 'Door', location: 'Primary Bath' }], {
+        notes: [note('low wall'), note('d/w'), note('opt. door', ['Door']), note('transom window at 9 plate option')]
+      })
+    );
+    const shown = findings.filter(f => f.id.startsWith('note:')).map(f => f.message);
+
+    expect(shown.some(m => m.includes('low wall') || m.includes('"d/w"'))).toBe(false);
+    expect(shown.some(m => m.includes('transom window'))).toBe(true);
+    expect(shown.some(m => m.includes('opt. door'))).toBe(true);
+  });
+});
