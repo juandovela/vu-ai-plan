@@ -4,6 +4,7 @@
  */
 
 import { createApp } from './app';
+import { kvCache } from './cache';
 import { readConfig, type Env } from './env';
 import { GeminiModelClient, readSheetWithGemini } from './gemini/client';
 
@@ -17,7 +18,8 @@ export default {
     return createApp({
       config,
       model: gemini ? new GeminiModelClient(gemini) : null,
-      readSheet: gemini ? pdf => readSheetWithGemini(gemini, pdf) : null
+      readSheet: gemini ? pdf => readSheetWithGemini(gemini, pdf) : null,
+      cache: env.PLAN_CACHE ? kvCache(env.PLAN_CACHE) : null
     }).fetch(request);
   }
 };

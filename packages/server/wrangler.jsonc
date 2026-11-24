@@ -27,5 +27,16 @@
     "ALLOWED_ORIGINS": "*",
     // claim "role" of the token
     "ALLOWED_ROLES": "admin,manager,production"
-  }
+  },
+
+  // Answers kept by what was asked: the sheet of a PDF (by its SHA-256) and the
+  // analysis of a plan (by the SHA-256 of the plan and the question), so the same
+  // thing is not paid twice. Entries expire by themselves, see cache.ts.
+  "kv_namespaces": [
+    {
+      "binding": "PLAN_CACHE",
+      "id": "9983cf7628ad42dc9da7f645a1daca05",
+      "preview_id": "9619c34c16d64cfaa947a504b44c269d"
+    }
+  ]
 }
