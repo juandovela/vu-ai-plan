@@ -2,6 +2,8 @@
  * What the Worker is given. Secrets (GEMINI_API_KEY) come from
  * `wrangler secret put` or .dev.vars, never from the repository.
  */
+import type { KVLike } from './cache';
+
 export interface Env {
   /** "production" unless it says otherwise: the safe default. */
   ENVIRONMENT?: string;
@@ -17,6 +19,8 @@ export interface Env {
   ALLOWED_ROLES?: string;
   /** Local development only: skips the token check. Ignored in production. */
   ALLOW_INSECURE_DEV_AUTH?: string;
+  /** Where the answers are kept (a KV namespace). Without it nothing is kept and everything works as before. */
+  PLAN_CACHE?: KVLike;
 }
 
 export interface Config {

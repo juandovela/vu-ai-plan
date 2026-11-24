@@ -5,14 +5,20 @@
  *   GET  /health
  *   POST /v1/analyze   json    -> operations
  *   POST /v1/sheet     pdf     -> plan sheet
+ *   GET  /v1/sheet/:sha256     -> the sheet kept for that PDF, if there is one
+ *
+ * The answers of /v1/analyze and /v1/sheet say in the header X-Cache whether
+ * they came from the cache (hit) or from the model (miss).
  */
 
 import {
+  AGENT_SYSTEM_PROMPT,
   analyzeDeterministic,
   analyzeRequestSchema,
   analyzeResponseSchema,
   CONTRACT_VERSION,
   runAgent,
+  SHEET_EXTRACTION_PROMPT,
   sheetResponseSchema,
   type ModelClient,
   type PlanSheet
@@ -21,6 +27,14 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 
 import { createVerifier, type AuthUser, type Verifier } from './auth';
+import {
+  CACHE_VERSION,
+  canonicalJson,
+  fingerprintOf,
+  isSha256,
+  sha256Hex,
+  type ResultCache
+} from './cache';
 import type { Config } from './env';
 import { errorBody, HttpError } from './errors';
 
@@ -34,6 +48,8 @@ export interface Deps {
   /** null: no key, the rules and the sheet still work. */
   model: ModelClient | null;
   readSheet: ((pdf: Uint8Array, fileName: string) => Promise<PlanSheet>) | null;
+  /** null: nothing is kept, every call goes to the model. */
+  cache?: ResultCache | null;
   log?: (entry: Record<string, unknown>) => void;
 }
 
@@ -44,6 +60,18 @@ export function createApp(deps: Deps) {
   const verify = deps.verify ?? createVerifier({ projectIds: config.projectIds });
   const log = deps.log ?? ((entry: Record<string, unknown>) => console.log(JSON.stringify(entry)));
   const app = new Hono<AppEnv>();
+  const cache = deps.cache ?? null;
+
+  /** What a kept answer depends on besides the question: change it and the old ones are not found. */
+  let fingerprint: Promise<string> | null = null;
+  const fingerprintOfAnswers = () =>
+    (fingerprint ??= fingerprintOf([
+      String(CACHE_VERSION),
+      String(CONTRACT_VERSION),
+      config.geminiModel,
+      SHEET_EXTRACTION_PROMPT,
+      AGENT_SYSTEM_PROMPT
+    ]));
 
   /* ------------------------------ cors ------------------------------ */
   app.use(
@@ -54,6 +82,7 @@ export function createApp(deps: Deps) {
       origin: origin => (config.origins.indexOf('*') !== -1 || config.origins.indexOf(origin) !== -1 ? origin : ''),
       allowMethods: ['GET', 'POST', 'OPTIONS'],
       allowHeaders: ['Authorization', 'Content-Type'],
+      exposeHeaders: ['X-Cache'],
       maxAge: 600
     })
   );
@@ -160,20 +189,59 @@ export function createApp(deps: Deps) {
       );
     }
 
-    const result = await runAgent({ snapshot, prompt, model: deps.model });
+    const key = cache ? `analysis:${await fingerprintOfAnswers()}:${await sha256Hex(canonicalJson({ snapshot, prompt }))}` : null;
+    const kept = cache && key ? await cache.get<unknown>(key) : null;
 
-    return c.json(
-      analyzeResponseSchema.parse({
-        contractVersion: CONTRACT_VERSION,
-        operations: result.operations,
-        findings: result.findings,
-        assistantText: result.assistantText,
-        trace: result.trace
-      })
-    );
+    if (kept) {
+      const hit = analyzeResponseSchema.safeParse(kept);
+
+      if (hit.success) {
+        c.header('X-Cache', 'hit');
+
+        return c.json(hit.data);
+      }
+    }
+
+    const result = await runAgent({ snapshot, prompt, model: deps.model });
+    const answer = analyzeResponseSchema.parse({
+      contractVersion: CONTRACT_VERSION,
+      operations: result.operations,
+      findings: result.findings,
+      assistantText: result.assistantText,
+      trace: result.trace
+    });
+
+    // a failed model call answers with the rules alone: it is not what the model would say
+    if (cache && key && !answer.findings.some(finding => finding.id === 'ai-failed')) {
+      await cache.put(key, answer);
+    }
+
+    c.header('X-Cache', 'miss');
+
+    return c.json(answer);
   });
 
   /* ------------------------------ sheet ------------------------------ */
+  // Asks for the sheet of a PDF by its SHA-256 before sending the file: when it is there, the PDF does not travel.
+  app.get('/v1/sheet/:sha256', async c => {
+    const hash = c.req.param('sha256').toLowerCase();
+
+    if (!isSha256(hash)) {
+      throw new HttpError(400, 'bad_request', 'The hash is not a SHA-256 in hexadecimal.');
+    }
+
+    const kept = cache ? await cache.get<unknown>(`sheet:${await fingerprintOfAnswers()}:${hash}`) : null;
+    const hit = kept ? sheetResponseSchema.safeParse({ contractVersion: CONTRACT_VERSION, sheet: kept }) : null;
+
+    if (hit && hit.success) {
+      c.header('X-Cache', 'hit');
+
+      return c.json({ ...hit.data, cached: true });
+    }
+
+    return c.json({ contractVersion: CONTRACT_VERSION, cached: false });
+  });
+
   app.post('/v1/sheet', async c => {
     if (!deps.readSheet) {
       throw new HttpError(503, 'upstream_failed', 'The AI is not configured on this backend, it can not read PDFs.');
@@ -207,6 +275,17 @@ export function createApp(deps: Deps) {
       throw new HttpError(400, 'bad_request', 'The file is not a PDF.');
     }
 
+    // the hash is computed here, whatever the client says about the file
+    const key = cache ? `sheet:${await fingerprintOfAnswers()}:${await sha256Hex(bytes)}` : null;
+    const kept = cache && key ? await cache.get<unknown>(key) : null;
+    const hit = kept ? sheetResponseSchema.safeParse({ contractVersion: CONTRACT_VERSION, sheet: kept }) : null;
+
+    if (hit && hit.success) {
+      c.header('X-Cache', 'hit');
+
+      return c.json(hit.data);
+    }
+
     let sheet: PlanSheet;
 
     try {
@@ -215,7 +294,15 @@ export function createApp(deps: Deps) {
       throw new HttpError(502, 'upstream_failed', error instanceof Error ? error.message : 'The PDF could not be read.');
     }
 
-    return c.json(sheetResponseSchema.parse({ contractVersion: CONTRACT_VERSION, sheet }));
+    const answer = sheetResponseSchema.parse({ contractVersion: CONTRACT_VERSION, sheet });
+
+    if (cache && key) {
+      await cache.put(key, answer.sheet);
+    }
+
+    c.header('X-Cache', 'miss');
+
+    return c.json(answer);
   });
 
   /* ----------------------------- errors ----------------------------- */
